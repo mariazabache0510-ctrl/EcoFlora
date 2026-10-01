@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /var/www/html
 
 COPY . /var/www/html
+RUN chmod 755 /var/www/html
 COPY docker/backend/apache.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/backend/php.ini /usr/local/etc/php/conf.d/app.ini
 
