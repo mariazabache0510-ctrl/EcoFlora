@@ -1,0 +1,47 @@
+services:
+  db:
+    build:
+      context: .
+      dockerfile: docker/db/Dockerfile
+    container_name: ecoflora-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-ecoflora_db}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "65432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ecoflora-net
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    container_name: ecoflora-backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_URL: ${APP_URL:-http://localhost:8081}
+      DB_HOST: db
+      DB_PORT: ${DB_PORT:-5432}
+      DB_DATABASE: ${DB_DATABASE:-ecoflora_db}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "8081:80"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - ecoflora-net
+
+volumes:
+  postgres_data:
+
+networks:
+  ecoflora-net:
+    driver: bridge

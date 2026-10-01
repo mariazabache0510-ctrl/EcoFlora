@@ -1,1 +1,1 @@
-<?php echo password_hash("Admin123", PASSWORD_DEFAULT); ?>
+app/views/pages/generar_hash.php

@@ -1,9 +1,11 @@
 <?php
-$host = "localhost";
-$puerto = "5433";
-$usuario = "postgres";
-$password = "1122515853";  // Reemplaza con la contraseña de PostgreSQL
-$base_datos = "ecoflora_db";
+require_once __DIR__ . '/../src/config/bootstrap.php';
+
+$host = env('DB_HOST', 'localhost');
+$puerto = env('DB_PORT', '5432');
+$usuario = env('DB_USERNAME', 'postgres');
+$password = env('DB_PASSWORD', 'postgres');
+$base_datos = env('DB_DATABASE', 'ecoflora_db');
 
 try {
     $conexion = new PDO(
@@ -19,11 +21,12 @@ try {
     die("Error de conexión: " . $e->getMessage());
 }
 
-$protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
-$host_name = $_SERVER['HTTP_HOST'];
-// Sin sufijo /ecoflora: correcto para `php -S localhost:8000` desde esta carpeta.
-// Si más adelante sirves bajo XAMPP como /ecoflora, añade de nuevo: . '/ecoflora'
-define('BASE_URL', $protocolo . $host_name);
+$appUrl = env('APP_URL', 'http://localhost:8080');
+$parsedUrl = parse_url($appUrl);
+$baseHost = $parsedUrl['host'] ?? $_SERVER['HTTP_HOST'] ?? 'localhost';
+$protocol = ($parsedUrl['scheme'] ?? (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http')) . '://';
+
+define('BASE_URL', $protocol . $baseHost);
 
 function registrarHistorial($conexion, $pagina, $url) {
     if (session_status() === PHP_SESSION_NONE) session_start();

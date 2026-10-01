@@ -1,0 +1,11 @@
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Dependencias instaladas
+/vendor/
+/node_modules/
+
+# Archivos del sistema macOS
+.DS_Store
