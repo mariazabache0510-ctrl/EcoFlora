@@ -54,6 +54,12 @@ function loadEnvFile(string $path): void {
 $projectRoot = dirname(__DIR__, 2);
 loadEnvFile($projectRoot . '/.env');
 
+if (env('APP_ENV', 'local') === 'production') {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+    ini_set('log_errors', '1');
+}
+
 if (!defined('APP_ROOT')) {
     define('APP_ROOT', $projectRoot);
 }

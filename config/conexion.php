@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../src/config/bootstrap.php';
 
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+    session_start();
+}
+
 $host = env('DB_HOST', 'localhost');
 $puerto = env('DB_PORT', '5432');
 $usuario = env('DB_USERNAME', 'postgres');
@@ -21,18 +25,18 @@ try {
     die("Error de conexión: " . $e->getMessage());
 }
 
-$appUrl = env('APP_URL', 'http://localhost:8080');
-$parsedUrl = parse_url($appUrl);
-$baseHost = $parsedUrl['host'] ?? $_SERVER['HTTP_HOST'] ?? 'localhost';
-$protocol = ($parsedUrl['scheme'] ?? (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http')) . '://';
-
-define('BASE_URL', $protocol . $baseHost);
-
 function registrarHistorial($conexion, $pagina, $url) {
-    if (session_status() === PHP_SESSION_NONE) session_start();
-    $id_usuario = isset($_SESSION['id_usuario']) ? $_SESSION['id_usuario'] : null;
-    $ip = $_SERVER['REMOTE_ADDR'];
-    $stmt = $conexion->prepare("INSERT INTO historial_navegacion (id_usuario, ip_address, pagina, url) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$id_usuario, $ip, $pagina, $url]);
+    if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+        session_start();
+    }
+
+    $id_usuario = $_SESSION['id_usuario'] ?? null;
+    $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+
+    try {
+        $stmt = $conexion->prepare("INSERT INTO historial_navegacion (id_usuario, ip_address, pagina, url) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$id_usuario, $ip, $pagina, $url]);
+    } catch (PDOException $e) {
+        error_log('No se pudo registrar el historial de navegación: ' . $e->getMessage());
+    }
 }
-?>

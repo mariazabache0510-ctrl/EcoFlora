@@ -16,7 +16,10 @@ COPY . /var/www/html
 RUN chmod 755 /var/www/html
 COPY docker/backend/apache.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/backend/php.ini /usr/local/etc/php/conf.d/app.ini
+COPY docker/backend/entrypoint.sh /usr/local/bin/ecoflora-entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/ecoflora-entrypoint.sh && chmod +x /usr/local/bin/ecoflora-entrypoint.sh
 
 EXPOSE 80
 
+ENTRYPOINT ["ecoflora-entrypoint.sh"]
 CMD ["apache2-foreground"]
